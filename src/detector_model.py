@@ -1,7 +1,7 @@
 """Detector counting and activity estimation."""
 
 import numpy as np
-
+from statistics import NormalDist
 
 def estimate_activity(
     gross_counts,
@@ -60,3 +60,55 @@ def theoretical_activity_std(
         + background_rate / background_time
     ) / efficiency**2
     return np.sqrt(variance)
+# ---------------------------------------------------------------------------
+# Detection limits (Currie, 1968)
+# ---------------------------------------------------------------------------
+
+def _z(probability):
+    """Standard-normal quantile, e.g. _z(0.95) = 1.645."""
+    return NormalDist().inv_cdf(probability)
+
+
+def null_net_count_std(background_rate, source_time, background_time):
+    """Std. dev. of net counts N = G - (Ts/Tb)B when NO source is present."""
+    return np.sqrt(
+        background_rate * source_time * (1.0 + source_time / background_time)
+    )
+
+
+def critical_level_counts(background_rate, source_time, background_time, alpha=0.05):
+    """Currie critical level L_C (net counts).
+
+    Declare 'source detected' when net counts exceed L_C. The false-positive
+    probability is alpha. Gaussian approximation: valid when the expected
+    background counts in the source measurement are roughly 10 or more.
+    """
+    sigma0 = null_net_count_std(background_rate, source_time, background_time)
+    return _z(1.0 - alpha) * sigma0
+
+
+def detection_limit_counts(
+    background_rate, source_time, background_time, alpha=0.05, beta=0.05
+):
+    """Currie detection limit L_D (net counts).
+
+    The true net count that is detected with probability 1 - beta by a test
+    with false-positive probability alpha. For alpha = beta this reduces to
+    L_D = k**2 + 2 * L_C.
+    """
+    sigma0 = null_net_count_std(background_rate, source_time, background_time)
+    k_a, k_b = _z(1.0 - alpha), _z(1.0 - beta)
+    l_c = k_a * sigma0
+    return l_c + k_b**2 / 2.0 + (k_b / 2.0) * np.sqrt(
+        k_b**2 + 4.0 * (l_c + sigma0**2)
+    )
+
+
+def minimum_detectable_activity(
+    efficiency, background_rate, source_time, background_time, alpha=0.05, beta=0.05
+):
+    """Minimum detectable activity (Bq) = L_D / (efficiency * source_time)."""
+    l_d = detection_limit_counts(
+        background_rate, source_time, background_time, alpha, beta
+    )
+    return l_d / (efficiency * source_time)
