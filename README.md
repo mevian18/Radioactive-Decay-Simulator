@@ -78,23 +78,23 @@ Radioactive-Decay-Simulator/
 │   ├── decay_physics.py
 │   ├── monte_carlo.py
 │   └── detector_model.py
+├── scripts/
+│   ├── radioactive_decay.py
+│   ├── compare_decay.py
+│   ├── monte_carlo_study.py
+│   ├── detector_uncertainty_study.py
+│   ├── background_rate_study.py
+│   └── measurement_time_optimization.py
 ├── tests/
 │   ├── test_decay_physics.py
 │   ├── test_monte_carlo.py
 │   └── test_detector_model.py
 ├── results/
-├── radioactive_decay.py
-├── compare_decay.py
-├── monte_carlo_study.py
-├── detector_uncertainty_study.py
-├── background_rate_study.py
-├── measurement_time_optimization.py
 ├── requirements.txt
 ├── LICENSE
+├── SECURITY.md
 ├── .gitignore
 └── README.md
-```
-
 ## Setup
 
 Clone the repository and enter the project directory:
@@ -128,14 +128,14 @@ pip install -r requirements.txt
 
 ## Running the simulations
 
-Run individual experiments from the project root (the scripts import from `src/`, so they must be run from the root folder):
+Run each experiment from the project root as a module (the scripts import from `src/`, so use `python -m`, not `python scripts/name.py`):
 
 ```bash
-python compare_decay.py
-python monte_carlo_study.py
-python detector_uncertainty_study.py
-python background_rate_study.py
-python measurement_time_optimization.py
+python -m scripts.compare_decay
+python -m scripts.monte_carlo_study
+python -m scripts.detector_uncertainty_study
+python -m scripts.background_rate_study
+python -m scripts.measurement_time_optimization
 ```
 
 Generated plots are saved in the `results/` directory.
@@ -167,4 +167,4 @@ Released under the MIT License. See [LICENSE](LICENSE).
 
 ## Author
 
-[Your name]
+[mevian18]
